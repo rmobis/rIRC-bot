@@ -1,0 +1,25 @@
+{
+  "name": "rIRC-bot",
+  "version": "0.0.0",
+  "description": "My first IRC bot.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rmobis/rIRC-bot.git"
+  },
+  "keywords": [
+    "bot",
+    "irc",
+    "rmobis"
+  ],
+  "author": "Raphael Mobis Tacla",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "gitHead": "ab4ad14be65efc3d3a9e84ea4c53412ff0e5b8d1",
+  "dependencies": {
+    "irc": "~0.3.6"
+  }
+}
