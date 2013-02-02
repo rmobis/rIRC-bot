@@ -3,6 +3,7 @@ var config = {
 	channels: ["#laravel"],
 	server: "irc.freenode.net",
 	botName: "rBot",
+	owner: "rmobis",
 	insults: {
 		host: "www.insult-o-matic.com",
 		yoMama: "/insults/?yourname={{name}}&numinsults=1&mode=yomama"
@@ -25,7 +26,8 @@ bot.addListener('message#', function(from, to, text, message) {
 		var name = matches[1];
 
 		// Don't insult itself
-		if (strtolower(name) === strtolower(config.botName)) {
+		if (name.toLowerCase() === (config.botName).toLowerCase() ||
+			name.toLowerCase() === (config.owner).toLowerCase()) {
 			name = from;
 		}
 		var reqConfig = {
