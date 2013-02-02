@@ -1,66 +1,48 @@
-// Create the configuration
-var config = {
-	channels: ["#laravel"],
-	server: "irc.freenode.net",
-	botName: "rBot",
-	owner: "rmobis",
-	insults: {
-		host: "www.insult-o-matic.com",
-		yoMama: "/insults/?yourname={{name}}&numinsults=1&mode=yomama"
- 	}
-};
-
 // Get the libs
-var irc = require('irc');
-var http = require('http');
+irc = require('irc');
+http = require('http');
 
-// Create the bot name
-var bot = new irc.Client(config.server, config.botName, {
+// Setup basic http callback; fuck yea, double closure
+httpClosureCallback = function(realCallback) {
+	return function(response) {
+		var str = '';
+
+		response.on('data', function(chunk) {
+			str += chunk;
+		});
+
+		response.on('end', function () {
+			return realCallback(str);
+		});
+	}
+}
+
+// Require auxiliar files
+require('./config.js');
+require('./commands.js');
+
+// Create the bot
+bot = new irc.Client(config.server, config.botName, {
 	channels: config.channels
 });
 
-// Listen to people joining the channel
+// Listen to commands
 bot.addListener('message#', function(from, to, text, message) {
-	var matches
-	if (matches = text.match(/^insult (.+)$/)) {
-		var name = matches[1];
+	var e = {
+		from: from,
+		to: to,
+		text: text,
+		message: message
+	};
 
-		// Don't insult itself
-		if (name.toLowerCase() === (config.botName).toLowerCase() ||
-			name.toLowerCase() === (config.owner).toLowerCase()) {
-			name = from;
+	for (c in commands) {
+		command = commands[c];
+		var matches;
+		if (matches = text.match(command.pattern)) {
+			console.log(matches[0]);
+			matches[0] = e;
+			console.log(matches[1]);
+			return command.handler.apply(command, matches);
 		}
-		var reqConfig = {
-			host: config.insults.host,
-			path: (config.insults.yoMama).replace('{{name}}', name)
-		}
-
-
-		console.log('Insulting ' + name);
-
-		http.request(reqConfig, function(response) {
-			var str = '';
-
-			response.on('data', function(chunk) {
-				str += chunk;
-			});
-
-			response.on('end', function() {
-				bot.say(to, yoMama(str, name));
-			});
-		}).end();
 	}
 });
-
-yoMama = function(response, name) {
-	return 'Hey ' + name + '! ' + parseInsult(response);
-}
-
-parseInsult = function(html) {
-	var response = html.match(/font color=#000000 .+?\n{2}(.+?)\n/)[1];
-	response = response.replace(/<.+?>(.+?)<.+?>/, '$1');
-	while (response.match(/\s{2,}/)) {
-		response = response.replace(/\s{2,}/, ' ');
-	}
-	return response;
-}
